@@ -18,7 +18,7 @@ pipeline {
             steps {
                 sh '''
                 . venv/bin/activate
-                pytest
+                pytest --cov=. --cov-report=xml
                 '''
             }
         }
