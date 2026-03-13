@@ -42,5 +42,30 @@ pipeline {
                 }
             }
         }
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
+            }
+        }
+        stage('Trivy Scan') {
+            steps {
+                 sh "trivy image ${IMAGE_NAME}:${BUILD_NUMBER}"
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-cred',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+
+                    sh '''
+                    docker login -u $USER -p $PASS
+                    docker push ${IMAGE_NAME}:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
     }
 }
