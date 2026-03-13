@@ -6,12 +6,20 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             steps {
-                sh 'pip3 install -r requirements.txt'
+                sh '''
+                python3 -m venv venv
+                source venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                '''
             }
         }
         stage('Unit Tests') {
             steps {
-                sh 'pytest'
+                sh '''
+                source venv/bin/activate
+                pytest
+                '''
             }
         }
         stage('SonarQube Scan') {
@@ -21,6 +29,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonarqube') {
                     sh '''
+                    source venv/bin/activate
                     $scannerHome/bin/sonar-scanner
                     '''
                 }
