@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        IMAGE_NAME = "yogithak/python-devops-app"
+        IMAGE_NAME = "yogithak/python-devops-automation-app"
     }
     stages {
         stage('Install Dependencies') {
