@@ -78,6 +78,7 @@ pipeline {
                     rm -rf python-devops-k8s-manifests
                     git clone https://$GIT_USER:$GIT_PASS@github.com/yogithak25/python-devops-k8s-manifests.git
                     cd python-devops-k8s-manifests
+                    
                     sed -i "s|image:.*|image: ${IMAGE_NAME}:${BUILD_NUMBER}|g" python-deployment.yaml
 
                     git config user.email "yogithak25@gmail.com"
