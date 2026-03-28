@@ -3,7 +3,6 @@ pipeline {
     environment {
         IMAGE_NAME = "yogithak/python-devops-automation-project"
     }
-    
     stages {
         stage('Install Dependencies') {
             steps {
