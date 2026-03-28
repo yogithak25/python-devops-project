@@ -27,10 +27,13 @@ pipeline {
                 script {
                     def scannerHome = tool 'sonar-scanner'
                     withSonarQubeEnv('sonarqube') {
-                        sh '''
+                        sh """
                         . venv/bin/activate
-                        ${scannerHome}/bin/sonar-scanner
-                        '''
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=python-devops-project \
+                        -Dsonar.sources=. \
+                        -Dsonar.python.coverage.reportPaths=coverage.xml
+                        """                        
                     }    
                 }
             }
