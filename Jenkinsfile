@@ -23,15 +23,15 @@ pipeline {
             }
         }
         stage('SonarQube Scan') {
-            environment {
-                scannerHome = tool 'sonar-scanner'
-            }
             steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh '''
-                    . venv/bin/activate
-                    $scannerHome/bin/sonar-scanner
-                    '''
+                script {
+                    def scannerHome = tool 'sonar-scanner'
+                    withSonarQubeEnv('sonarqube') {
+                        sh '''
+                        . venv/bin/activate
+                        ${scannerHome}/bin/sonar-scanner
+                        '''
+                    }    
                 }
             }
         }
