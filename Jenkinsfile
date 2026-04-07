@@ -43,11 +43,15 @@ pipeline {
                     def scannerHome = tool 'sonar-scanner'
                     withSonarQubeEnv('sonarqube') {
                         sh """
-                        . venv/bin/activate
-                        ${scannerHome}/bin/sonar-scanner \
+                        docker run --rm \
+                        -v /home/ubuntu/jenkins_home/workspace/python-devops-pipeline:/app \
+                        -w /app \
+                        sonarsource/sonar-scanner-cli \
                         -Dsonar.projectKey=python-devops-project \
                         -Dsonar.sources=. \
-                        -Dsonar.python.coverage.reportPaths=coverage.xml
+                        -Dsonar.python.coverage.reportPaths=coverage.xml \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_AUTH_TOKEN
                         """
                     }
                 }
