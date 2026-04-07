@@ -1,10 +1,13 @@
 pipeline {
     agent any
+
     environment {
         IMAGE_NAME = "yogithak/python-devops-automation-project"
     }
+
     stages {
-        stage('Install Dependencies') {
+
+        stage('Setup Python Environment') {
             steps {
                 sh '''
                 python3 -m venv venv
@@ -14,6 +17,7 @@ pipeline {
                 '''
             }
         }
+
         stage('Unit Tests') {
             steps {
                 sh '''
@@ -22,6 +26,7 @@ pipeline {
                 '''
             }
         }
+
         stage('SonarQube Scan') {
             steps {
                 script {
@@ -33,11 +38,12 @@ pipeline {
                         -Dsonar.projectKey=python-devops-project \
                         -Dsonar.sources=. \
                         -Dsonar.python.coverage.reportPaths=coverage.xml
-                        """                        
-                    }    
+                        """
+                    }
                 }
             }
         }
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -45,16 +51,29 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Build') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
+                sh '''
+                docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                '''
             }
         }
+
         stage('Trivy Scan') {
             steps {
-                 sh "trivy image ${IMAGE_NAME}:${BUILD_NUMBER}"
+                sh '''
+                docker run --rm \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                aquasec/trivy:0.50.0 image \
+                --scanners vuln \
+                --severity HIGH,CRITICAL \
+                --exit-code 1 \
+                ${IMAGE_NAME}:${BUILD_NUMBER}
+                '''
             }
         }
+
         stage('Docker Push') {
             steps {
                 withCredentials([usernamePassword(
@@ -62,14 +81,14 @@ pipeline {
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
-
                     sh '''
-                    docker login -u $USER -p $PASS
+                    echo $PASS | docker login -u $USER --password-stdin
                     docker push ${IMAGE_NAME}:${BUILD_NUMBER}
                     '''
                 }
             }
         }
+
         stage('Update Kubernetes Manifest Repo') {
             steps {
                 withCredentials([usernamePassword(
@@ -79,21 +98,22 @@ pipeline {
                 )]) {
                     sh '''
                     rm -rf python-devops-k8s-manifests
+
                     git clone https://$GIT_USER:$GIT_PASS@github.com/yogithak25/python-devops-k8s-manifests.git
+
                     cd python-devops-k8s-manifests
-                    
+
                     sed -i "s|image:.*|image: ${IMAGE_NAME}:${BUILD_NUMBER}|g" python-deployment.yaml
 
                     git config user.email "yogithak25@gmail.com"
                     git config user.name "yogithak25"
 
                     git add python-deployment.yaml
-                    git commit -m "Update image version ${BUILD_NUMBER}"
+                    git commit -m "Update image version ${BUILD_NUMBER}" || echo "No changes"
 
                     git push
                     '''
                 }
-
             }
         }
     }
