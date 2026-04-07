@@ -47,6 +47,7 @@ pipeline {
                         -v /home/ubuntu/jenkins_home/workspace/python-devops-pipeline:/app \
                         -w /app \
                         sonarsource/sonar-scanner-cli \
+                        sonar-scanner \
                         -Dsonar.projectKey=python-devops-project \
                         -Dsonar.sources=. \
                         -Dsonar.python.coverage.reportPaths=coverage.xml \
