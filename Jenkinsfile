@@ -10,10 +10,14 @@ pipeline {
         stage('Setup Python Environment') {
             steps {
                 sh '''
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
+                docker run --rm \
+                -v /var/jenkins_home/workspace/python-devops-pipeline:/app \
+                -w /app \
+                python:3.11-slim \
+                sh -c "
+                pip install --upgrade pip &&
                 pip install -r requirements.txt
+                "
                 '''
             }
         }
@@ -21,8 +25,14 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 sh '''
-                . venv/bin/activate
+                docker run --rm \
+                -v /var/jenkins_home/workspace/python-devops-pipeline:/app \
+                -w /app \
+                python:3.11-slim \
+                sh -c "
+                pip install -r requirements.txt &&
                 pytest --cov=. --cov-report=xml
+                "
                 '''
             }
         }
