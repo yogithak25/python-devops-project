@@ -51,7 +51,7 @@ pipeline {
                         -Dsonar.sources=. \
                         -Dsonar.python.coverage.reportPaths=coverage.xml \
                         -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_AUTH_TOKEN
+                        -Dsonar.login=$SONAR_AUTH_TOKEN \
                         -Dsonar.working.directory=/app/.scannerwork
                         """
                     }
