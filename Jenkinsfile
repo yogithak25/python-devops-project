@@ -11,7 +11,7 @@ pipeline {
             steps {
                 sh '''
                 docker run --rm \
-                -v /var/jenkins_home/workspace/python-devops-pipeline:/app \
+                -v /home/ubuntu/jenkins_home/workspace/python-devops-pipeline:/app \
                 -w /app \
                 python:3.11-slim \
                 sh -c "
@@ -26,7 +26,7 @@ pipeline {
             steps {
                 sh '''
                 docker run --rm \
-                -v /var/jenkins_home/workspace/python-devops-pipeline:/app \
+                -v /home/ubuntu/jenkins_home/workspace/python-devops-pipeline:/app \
                 -w /app \
                 python:3.11-slim \
                 sh -c "
