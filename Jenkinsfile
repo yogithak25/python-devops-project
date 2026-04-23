@@ -21,7 +21,6 @@ pipeline {
                 '''
             }
         }
-
         stage('Unit Tests') {
             steps {
                 sh '''
@@ -71,7 +70,6 @@ pipeline {
                 '''
             }
         }
-
         stage('Trivy Scan') {
             steps {
                 sh '''
